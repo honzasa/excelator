@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f8fc">
+  <meta name="description" content="Excelátor: vytvoř správný vzorec do Excelu během pár kliknutí. Počty, součty, minima, maxima, průměry a chytré filtrování. Zdarma a česky.">
+  <title>Excelátor — vzorce do Excelu bez stresu</title>
+  <style>
+    :root { --ink:#16233a; --muted:#65728a; --line:#e1e7f0; --bg:#f6f8fc; --card:#fff; --blue:#2e65ef; --blue-pale:#eff4ff; --green:#148f76; --green-pale:#e6f8f1; --shadow:0 12px 38px rgba(17,39,78,.055); --radius:18px; }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    button,input,select { font:inherit; }
+    button { cursor:pointer; }
+    button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible { outline:3px solid #a0bfff; outline-offset:2px; }
+    .shell { width:min(1200px,calc(100% - 44px)); margin:auto; }
+    header { background:#fff; border-bottom:1px solid var(--line); }
+    .nav { min-height:72px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .brand { display:flex;align-items:center; gap:11px; color:var(--ink);font-size:19px;font-weight:850;letter-spacing:-.8px;text-decoration:none; }
+    .logo { display:grid;place-items:center;width:38px;height:38px;background:linear-gradient(135deg,#2d6bef,#22bba1);color:#fff;border-radius:11px;font-weight:900;font-size:20px;box-shadow:0 4px 12px rgba(41,105,215,.22); }
+    .nav-right { display:flex;align-items:center;gap:18px;color:var(--muted);font-size:13px; }
+    .nav-right a { color:var(--muted);text-decoration:none;font-weight:650; }
+    .nav-pill { padding:6px 10px;border-radius:100px;background:var(--green-pale);color:var(--green);font-weight:750;font-size:12px; }
+    .hero { padding:38px 0 22px;display:flex;justify-content:space-between;align-items:flex-end;gap:25px; }
+    .eyebrow { display:inline-flex;align-items:center;gap:7px;font-size:12px;letter-spacing:.05em;text-transform:uppercase;font-weight:850;color:var(--blue); }
+    .eyebrow::before { content:""; width:7px;height:7px;border-radius:50%;background:#2cbda5; }
+    h1 { margin:8px 0 8px; font-size:clamp(28px,4vw,44px);line-height:1.11;letter-spacing:-1.75px; }
+    .hero p { max-width:670px;margin:0;color:var(--muted);font-size:16px; }
+    .privacy { flex:0 0 auto;display:flex;align-items:center;gap:7px;color:var(--muted);font-size:12px;background:#fff;padding:11px 13px;border:1px solid var(--line);border-radius:12px; }
+    .workspace { display:grid;grid-template-columns:minmax(0,1.45fr) minmax(330px,.95fr);align-items:start;gap:22px;padding:12px 0 28px; }
+    .left { min-width:0;display:grid;gap:17px; }
+    .panel { border:1px solid var(--line);background:#fff; border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden; }
+    .panel-head { display:flex;align-items:center;gap:12px;padding:22px 24px 16px; }
+    .step { width:32px;height:32px;border-radius:10px;background:var(--blue-pale);color:var(--blue);display:grid;place-items:center;font-size:14px;font-weight:850;flex:0 0 auto; }
+    .panel h2 { font-size:17px;line-height:1.2;margin:0;letter-spacing:-.35px; }
+    .sub { color:var(--muted);font-size:13px;margin:4px 0 0; }
+    .panel-body { padding:0 24px 24px; }
+    .mode-grid { display:grid;grid-template-columns:repeat(5,1fr);gap:9px; }
+    .mode { border:1.5px solid var(--line);background:#fff;min-width:0;border-radius:13px;padding:14px 4px 12px;display:flex;flex-direction:column;align-items:center;gap:5px;transition:.18s; }
+    .mode:hover { border-color:#8fb0fe;background:#f8faff; }
+    .mode[aria-pressed="true"] { border-color:var(--blue);background:var(--blue-pale);box-shadow:inset 0 0 0 .5px var(--blue); }
+    .mode .mode-icon { font-size:22px;line-height:1.1;color:#3563b7;font-weight:850; }
+    .mode strong {font-size:13px;}
+    .mode small {color:var(--muted);font-size:11px;}
+    .divider { height:1px;background:var(--line);margin:19px 0; }
+    .field-head {display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+    .field-head h3 {font-size:14px;margin:0;}
+    .help {font-size:12px;color:var(--muted);}
+    .field {display:flex;flex-direction:column;gap:6px;min-width:0;}
+    .field label {font-size:12px;font-weight:750;color:#43536d;}
+    .field input,.field select,.in {height:42px;border:1px solid #d7dfeb;border-radius:10px;background:#fff;color:var(--ink);padding:0 12px;min-width:0;width:100%;}
+    input::placeholder {color:#9ba7b7;}
+    .field input:disabled,.field select:disabled {color:#a2adbc;background:#f4f6fa;}
+    .two {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;}
+    .three {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;}
+    .period-tabs { display:flex;gap:6px;flex-wrap:wrap;background:#f3f6fb;border:1px solid #ebeff5;border-radius:12px;padding:5px;margin-bottom:12px; }
+    .period-tabs button {flex:1;border:0;background:transparent;border-radius:8px;padding:8px 9px;color:var(--muted);font-size:12px;font-weight:700;white-space:nowrap;}
+    .period-tabs button[aria-pressed="true"] {background:white;color:var(--blue);box-shadow:0 1px 5px rgba(21,41,88,.1);}
+    .muted-box {border:1px dashed #d1daea;background:#fafbfe;border-radius:12px;padding:14px;color:var(--muted);font-size:13px;}
+    .filter-row {display:grid;grid-template-columns:minmax(105px,1.12fr) minmax(95px,.9fr) minmax(120px,1.15fr) 34px;gap:8px;align-items:end;margin-top:10px;}
+    .filter-row.numeric-range {grid-template-columns:1.1fr .85fr 1fr 1fr 34px;}
+    .filter-row .field label {display:block;max-height:28px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+    .remove {width:34px;height:42px;display:grid;place-items:center;background:#fff6f6;border:1px solid #f6d7da;color:#bb4756;border-radius:9px;font-size:22px;line-height:1;}
+    .remove:hover {background:#ffe6e8;}
+    .add-btn {display:inline-flex;align-items:center;justify-content:center;gap:7px;background:var(--blue-pale);color:var(--blue);border:1px dashed #b4c8fd;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:800;margin-top:13px;}
+    details.settings {border:1px solid var(--line);border-radius:var(--radius);background:#fff;overflow:hidden;box-shadow:var(--shadow);}
+    details.settings summary {cursor:pointer;padding:17px 22px;list-style:none;font-weight:750;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+    details.settings summary::-webkit-details-marker {display:none;}
+    details.settings summary::after {content:'⌄';font-size:20px;color:var(--muted);}
+    details.settings[open] summary::after {transform:rotate(180deg);}
+    details.settings .settings-body {border-top:1px solid var(--line);padding:18px 22px 23px;}
+    .mapping {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:12px;}
+    .mapping .field input {text-transform:uppercase;text-align:center;font-weight:800;padding:0 4px;}
+    .settings-footer {display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:17px;}
+    .switchline {display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);}
+    .output {position:sticky;top:18px;}
+    .output .panel-head {padding-bottom:19px;}
+    .preview-top {padding:24px 24px 0;background:linear-gradient(145deg,#142843,#1d3b5f);color:#fff;}
+    .preview-top .pill {display:inline-flex;padding:5px 9px;border:1px solid rgba(145,255,229,.24);border-radius:50px;background:rgba(45,209,166,.13);color:#a8f3d8;font-weight:750;font-size:11px;}
+    .preview-top h2 {font-size:23px;margin:12px 0 4px;color:#fff;letter-spacing:-.7px;}
+    .preview-top p {font-size:13px;color:#c4d6ec;margin:0 0 17px;}
+    .formula-wrap {position:relative;background:#0d1b30;border:1px solid #35506e;border-radius:12px;padding:16px;min-height:116px;}
+    .formula {white-space:pre-wrap;overflow-wrap:anywhere;font:600 13px/1.8 "Cascadia Code",Consolas,"Courier New",monospace;letter-spacing:.05px;color:#a4e8f9;user-select:all;}
+    .formula-placeholder {color:#ffcf99;}
+    .preview-action {padding:13px 0 23px;display:grid;grid-template-columns:1fr auto;gap:8px;}
+    .primary {background:#50dfbc;border:0;color:#10382e;font-weight:850;padding:13px 14px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:.15s;}
+    .primary:hover {background:#7ff4d3;}
+    .secondary {background:rgba(255,255,255,.1);border:1px solid #52728d;color:#eaf5ff;padding:10px 13px;border-radius:10px;font-weight:700;}
+    .result-lower {padding:20px 24px 24px;}
+    .result-lower h3 {margin:0 0 8px;font-size:13px;}
+    .result-lower ol {padding-left:19px;margin:0;color:var(--muted);font-size:13px;}
+    .result-lower ol li+li {margin-top:7px;}
+    .note {display:flex;gap:8px;background:#fff8eb;border:1px solid #f6e4bd;color:#93672a;padding:11px;border-radius:10px;font-size:12px;margin-top:17px;}
+    .explain {color:#43536d;background:#f2f6fd;border-radius:10px;padding:12px 14px;font-size:12px;margin-top:16px;}
+    .error {display:none;border:1px solid #f5c9c9;color:#a53f3f;background:#fff1f1;border-radius:10px;padding:10px 12px;font-size:12px;margin-top:11px;}
+    .error.visible {display:block;}
+    .example-section {padding:4px 0 48px;}
+    .section-top {display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 15px;}
+    .section-top h2 {font-size:21px;letter-spacing:-.5px;margin:0;}
+    .example-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;}
+    .example {text-align:left;border:1px solid var(--line);background:#fff;border-radius:14px;padding:18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:9px;min-height:150px;}
+    .example:hover {border-color:#91b5ff;transform:translateY(-1px);}
+    .example .tag {color:var(--blue);font-size:11px;font-weight:850;}
+    .example strong {font-size:14px;line-height:1.4;}
+    .example .end {margin-top:auto;font-size:12px;color:var(--muted);}
+    footer {border-top:1px solid var(--line);padding:24px 0 32px;color:var(--muted);font-size:12px;}
+    footer .shell {display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap;}
+    .small-link {color:var(--blue);text-decoration:none;font-weight:700;}
+    .sr-only {position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+    @media(max-width:960px) { .workspace{grid-template-columns:1fr;} .output{position:static;}.hero{align-items:flex-start;}.privacy{display:none;} .example-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
+    @media(max-width:620px) { .shell{width:min(100% - 26px,1200px)} .nav{min-height:64px;} .nav-right a{display:none;} .hero{padding:26px 0 18px;} .hero p{font-size:14px;} h1{letter-spacing:-1px;} .workspace{gap:13px;} .panel-head{padding:18px 16px 15px;} .panel-body{padding:0 16px 18px;} .mode-grid{grid-template-columns:repeat(3,minmax(0,1fr));} .mode{padding:13px 3px;} .filter-row,.filter-row.numeric-range{grid-template-columns:1fr 1fr 38px;align-items:end;gap:8px;border-bottom:1px dashed var(--line);padding-bottom:14px;} .filter-row>.field:first-child{grid-column:1 / 2;} .filter-row>.field:nth-child(2){grid-column:2 / 3;} .filter-row>.field:nth-child(3){grid-column:1 / 3;} .filter-row.numeric-range>.field:nth-child(3){grid-column:1 / 2;} .filter-row.numeric-range>.field:nth-child(4){grid-column:2 / 3;} .remove{grid-column:3;grid-row:1;} .mapping{grid-template-columns:repeat(3,1fr)} .settings-footer{grid-template-columns:1fr 1fr} .preview-top{padding:20px 17px 0;} .result-lower{padding:19px 17px;} .example-grid{grid-template-columns:1fr;} .example{min-height:112px;} }
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="shell nav">
+      <a class="brand" href="#nahoru"><span class="logo" aria-hidden="true">ƒ</span> Excelátor <span style="font-weight:500;color:#9aa8ba;font-size:12px;letter-spacing:0">/ generátor vzorců</span></a>
+      <nav class="nav-right"><a href="#priklady">Hotové příklady</a><a href="#nastaveni">Nastavení tabulky</a><span class="nav-pill">100 % zdarma</span></nav>
+    </div>
+  </header>
+  <main class="shell" id="nahoru">
+    <section class="hero"><div><span class="eyebrow">Excel bez zbytečného přemýšlení</span><h1>Vzorec do Excelu <span style="color:var(--blue)">na pár kliknutí.</span></h1><p>Vyber, co potřebuješ spočítat. Přidej podmínky. Zkopíruj hotový vzorec. Žádné programování ani složité příkazy.</p></div><div class="privacy">🔒 Funguje přímo v prohlížeči</div></section>
+    <div class="workspace">
+      <div class="left">
+        <section class="panel" aria-labelledby="step1"><div class="panel-head"><span class="step">1</span><div><h2 id="step1">Co chceš zjistit?</h2><p class="sub">Vyber jednu možnost. Funkci vybereme za tebe.</p></div></div><div class="panel-body">
+          <div class="mode-grid" id="modeGrid" role="group" aria-label="Typ výpočtu">
+            <button type="button" class="mode" data-mode="count" aria-pressed="true"><span class="mode-icon">#</span><strong>Počet</strong><small>Kolik?</small></button>
+            <button type="button" class="mode" data-mode="sum" aria-pressed="false"><span class="mode-icon">Σ</span><strong>Součet</strong><small>Kolik Kč?</small></button>
+            <button type="button" class="mode" data-mode="min" aria-pressed="false"><span class="mode-icon">↓</span><strong>Minimum</strong><small>Nejméně</small></button>
+            <button type="button" class="mode" data-mode="max" aria-pressed="false"><span class="mode-icon">↑</span><strong>Maximum</strong><small>Nejvíce</small></button>
+            <button type="button" class="mode" data-mode="avg" aria-pressed="false"><span class="mode-icon">≈</span><strong>Průměr</strong><small>Průměrně</small></button>
+          </div>
+          <div class="divider"></div><div class="field-head"><h3 id="targetLabel">Co má Excel spočítat?</h3><span class="help">Určuje sloupec s výsledky</span></div>
+          <div class="field"><select id="targetField" aria-label="Sloupec s hodnotami"><option value="amount">Částka objednávky (B)</option><option value="seller">Prodejce (A)</option><option value="city">Město (D)</option><option value="product">Produkt (E)</option><option value="custom">Jiný sloupec…</option></select></div>
+          <div class="field" id="targetCustomWrap" style="margin-top:10px;display:none"><label for="targetCustom">Písmeno jiného sloupce (např. F nebo AA)</label><input id="targetCustom" maxlength="3" placeholder="F" spellcheck="false"></div>
+          <p class="help" id="targetHint" style="margin:10px 0 0">Pro počet používáme neprázdné řádky z vybraného sloupce.</p>
+        </div></section>
+        <section class="panel" aria-labelledby="step2"><div class="panel-head"><span class="step">2</span><div><h2 id="step2">Pro které objednávky?</h2><p class="sub">Nech prázdné, pokud chceš započítat všechno.</p></div></div><div class="panel-body">
+          <div class="field-head"><h3>Časové období</h3><span class="help">Volitelné</span></div>
+          <div class="period-tabs" role="group" aria-label="Výběr období">
+            <button type="button" data-period="none" aria-pressed="true">Bez omezení</button><button type="button" data-period="months" aria-pressed="false">Měsíce</button><button type="button" data-period="dates" aria-pressed="false">Konkrétní data</button>
+          </div>
+          <div id="periodNone" class="muted-box">🗓️ Zahrneme objednávky ze všech dat.</div>
+          <div id="periodMonths" style="display:none"><div class="three"><div class="field"><label for="year">Rok</label><input type="number" id="year" value="2023" min="1900" max="9998" inputmode="numeric"></div><div class="field"><label for="monthFrom">Od měsíce</label><select id="monthFrom"></select></div><div class="field"><label for="monthTo">Do měsíce (včetně)</label><select id="monthTo"></select></div></div><p class="help" style="margin:9px 0 0">Např. leden až únor: od leden, do únor.</p></div>
+          <div id="periodDates" style="display:none"><div class="two"><div class="field"><label for="dateFrom">Od data</label><input type="date" id="dateFrom" value="2023-01-01"></div><div class="field"><label for="dateTo">Do data (včetně)</label><input type="date" id="dateTo" value="2023-01-31"></div></div></div>
+          <div class="divider"></div><div class="field-head"><h3>Další podmínky</h3><span class="help">Můžeš přidat více</span></div>
+          <div id="filterEmpty" class="muted-box">✨ Zatím žádné. Třeba „prodejce = Daněk“, „produkt = Hruška“ nebo „částka menší než 1000“.</div>
+          <div id="filters" aria-label="Přidané podmínky"></div>
+          <button id="addFilter" class="add-btn" type="button"><span aria-hidden="true" style="font-size:19px;line-height:1">＋</span> Přidat podmínku</button>
+        </div></section>
+        <details class="settings" id="nastaveni"><summary>⚙️ Nastavení sloupců a Excelu <span class="help" style="font-weight:450;margin-left:auto">Pokročilé · nemusíš měnit</span></summary><div class="settings-body"><p class="sub" style="margin-top:0">Pokud tvoje tabulka vypadá jinak, nastav správná písmena sloupců. Výchozí hodnoty odpovídají naší ukázkové tabulce.</p>
+          <div class="mapping">
+            <div class="field"><label for="colSeller">Prodejce</label><input id="colSeller" value="A" maxlength="3" spellcheck="false"></div>
+            <div class="field"><label for="colAmount">Částka</label><input id="colAmount" value="B" maxlength="3" spellcheck="false"></div>
+            <div class="field"><label for="colDate">Datum</label><input id="colDate" value="C" maxlength="3" spellcheck="false"></div>
+            <div class="field"><label for="colCity">Město</label><input id="colCity" value="D" maxlength="3" spellcheck="false"></div>
+            <div class="field"><label for="colProduct">Produkt</label><input id="colProduct" value="E" maxlength="3" spellcheck="false"></div>
+          </div>
+          <div class="settings-footer"><div class="field"><label for="firstRow">První řádek s daty</label><input id="firstRow" type="number" value="2" min="1" max="1048576"></div><div class="field"><label for="lastRow">Poslední řádek (stačí odhad)</label><input id="lastRow" type="number" value="10000" min="1" max="1048576"></div><div class="field"><label for="language">Jazyk Excelu</label><select id="language"><option value="cs">Český Excel</option><option value="en">English Excel</option></select></div><div class="field"><label for="separator">Oddělovač argumentů</label><select id="separator"><option value=";">Středník ( ; )</option><option value=",">Čárka ( , )</option></select></div></div>
+          <p class="help" style="margin:13px 0 0">Tip: v češtině se běžně používá středník. Pokud má tvůj Excel jiná nastavení, změň oddělovač.</p>
+          <button id="resetAll" type="button" class="add-btn" style="margin-top:17px">↺ Obnovit výchozí nastavení</button>
+        </div></details>
+      </div>
+      <aside class="panel output" aria-labelledby="step3"><div class="preview-top"><span class="pill">✓ Automaticky vytvořeno</span><h2 id="step3">Tvůj Excel vzorec</h2><p id="formulaSummary">Počet všech objednávek.</p><div class="formula-wrap"><div class="formula" id="formula" aria-live="polite">=COUNTIFS(A2:A10000;"&lt;&gt;")</div></div><div class="error" id="error" role="alert"></div><div class="preview-action"><button type="button" class="primary" id="copyFormula">▣ &nbsp;Kopírovat vzorec</button><button type="button" class="secondary" id="resetBuilder" title="Začít znovu">↺</button></div></div><div class="result-lower"><h3>Co teď s tím?</h3><ol><li>Klikni na <strong>„Kopírovat vzorec“</strong>.</li><li>V Excelu klikni na <strong>prázdnou buňku</strong>.</li><li>Stiskni <strong>Ctrl + V</strong> a pak <strong>Enter</strong>.</li><li>Výsledné číslo opiš do zadání.</li></ol><div class="explain" id="explain">Vzorec spočítá všechny neprázdné buňky ve vybraném sloupci.</div><div class="note"><span aria-hidden="true">💡</span><span>Stránka vytváří <strong>vzorec, ne výsledek</strong>. Skutečné číslo vypočítá Excel z tvých dat. Pokud MINIFS/MAXIFS vrátí 0, zkontroluj i to, zda existují odpovídající záznamy.</span></div></div></aside>
+    </div>
+    <section class="example-section" id="priklady"><div class="section-top"><div><h2>Hotové příklady</h2><p class="sub">Klikni a všechno se automaticky vyplní. Pak si můžeš podmínky změnit.</p></div></div><div class="example-grid">
+      <button class="example" type="button" data-preset="janFeb"><span class="tag">POČET · 2 MĚSÍCE</span><strong>Kolik bylo objednávek za leden a únor 2023?</strong><span class="end">Použít příklad ↗</span></button>
+      <button class="example" type="button" data-preset="zlin"><span class="tag">POČET · VÍCE PODMÍNEK</span><strong>Kolik objednávek pod 1000 Kč bylo ve Zlíně v lednu a únoru?</strong><span class="end">Použít příklad ↗</span></button>
+      <button class="example" type="button" data-preset="danek"><span class="tag">SOUČET · PRODEJCE + PRODUKT</span><strong>Kolik Kč utržily objednávky Daňka za Hrušky?</strong><span class="end">Použít příklad ↗</span></button>
+      <button class="example" type="button" data-preset="banana"><span class="tag">SOUČET · PRODUKT + MĚSÍC</span><strong>Jaká je celková částka za Banány v červnu?</strong><span class="end">Použít příklad ↗</span></button>
+      <button class="example" type="button" data-preset="minimum"><span class="tag">MINIMUM · PRODEJCE + MĚSÍC</span><strong>Jaká byla nejnižší objednávka Daňka v květnu?</strong><span class="end">Použít příklad ↗</span></button>
+      <button class="example" type="button" data-preset="average"><span class="tag">PRŮMĚR · MĚSTO</span><strong>Jaká je průměrná částka objednávky v Brně?</strong><span class="end">Použít příklad ↗</span></button>
+    </div></section>
+  </main>
+  <footer><div class="shell"><span><strong style="color:var(--ink)">Excelátor</strong> · Jednoduchý pomocník pro Excel · Bez registrace, zdarma.</span><span>Žádná data se neposílají na server. <a class="small-link" href="#nahoru">Zpět nahoru ↑</a></span></div></footer>
+  <script>
+    'use strict';
+    const $ = (id) => document.getElementById(id);
+    const monthNames = ['Leden','Únor','Březen','Duben','Květen','Červen','Červenec','Srpen','Září','Říjen','Listopad','Prosinec'];
+    const names = {seller:'prodejce',amount:'částka',date:'datum',city:'město',product:'produkt',custom:'jiný sloupec'};
+    const modes = {count:'Počet',sum:'Součet',min:'Nejnižší částka',max:'Nejvyšší částka',avg:'Průměr'};
+    let filters = [];
+    let counter = 0;
+    const defaultState = {mode:'count',period:'none',year:2023,monthFrom:1,monthTo:2};
+    let state = {...defaultState};
+
+    function escapeHTML(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+    function letter(s) { const x=String(s??'').trim().toUpperCase(); return /^[A-Z]{1,3}$/.test(x) && columnIndex(x)<=16384 ? x : null; }
+    function columnIndex(col) { return [...col].reduce((n,c)=>n*26+c.charCodeAt(0)-64,0); }
+    function area(col, start, end) { return `${col}${start}:${col}${end}`; }
+    function excelString(s) { return '"'+String(s).replace(/"/g,'""')+'"'; }
+    function literalText(s) { return String(s).replace(/~/g,'~~').replace(/\*/g,'~*').replace(/\?/g,'~?'); }
+    function numericValue(v,lang) {
+      let x=String(v).trim().replace(/[\s\u00a0\u202f]/g,'');
+      if (/^-?\d{1,3}(?:\.\d{3})+,\d+$/.test(x)) x=x.replace(/\./g,'').replace(',','.');
+      else if (/^-?\d{1,3}(?:,\d{3})+\.\d+$/.test(x)) x=x.replace(/,/g,'');
+      else if (x.includes(',') && !x.includes('.')) x=x.replace(',','.');
+      if (!/^-?\d+(?:\.\d+)?$/.test(x)) return null;
+      return lang==='cs' ? x.replace('.',',') : x;
+    }
+    function colOf(field) {
+      const ids={seller:'colSeller',amount:'colAmount',date:'colDate',city:'colCity',product:'colProduct'};
+      return letter($(ids[field]||'').value);
+    }
+    function rangeFor(field,first,last) { const col=colOf(field); if(!col) throw Error(`Nesprávné písmeno sloupce pro: ${names[field]}. Oprav ho v nastavení.`);return area(col,first,last); }
+    function language(){return $('language').value;}
+    function fn(n){return {cs:{date:'DATUM',sum:'SUMA',avg:'PRŮMĚR'},en:{date:'DATE',sum:'SUM',avg:'AVERAGE'}}[language()][n]||n;}
+    function dateFormula(year,month,day,sep){return `${fn('date')}(${year}${sep}${month}${sep}${day})`;}
+    function validISO(x){if(!/^\d{4}-\d{2}-\d{2}$/.test(x))return false;const [y,m,d]=x.split('-').map(Number);const u=new Date(Date.UTC(y,m-1,d));return u.getUTCFullYear()===y && u.getUTCMonth()===m-1 && u.getUTCDate()===d;}
+    function addDay(x){const [y,m,d]=x.split('-').map(Number);const u=new Date(Date.UTC(y,m-1,d+1));return [u.getUTCFullYear(),u.getUTCMonth()+1,u.getUTCDate()];}
+    function generateFormula(){
+      const sep=$('separator').value;
+      const first=Number($('firstRow').value),last=Number($('lastRow').value);
+      if(!Number.isInteger(first)||!Number.isInteger(last)||first<1||last>1048576||last<first)throw Error('Nastav platný první a poslední řádek tabulky.');
+      const target=$('targetField').value;
+      const targetCol=target==='custom'?letter($('targetCustom').value):colOf(target);
+      if(!targetCol)throw Error('Zadej platné písmeno sloupce, ze kterého se má počítat.');
+      const targetRange=area(targetCol,first,last);
+      const cond=[];
+      const human=[];
+      if(state.period!=='none'){
+        const dateRange=rangeFor('date',first,last);
+        let ys,ms,ds,ye,me,de;
+        if(state.period==='months'){
+          const y=Number($('year').value),start=Number($('monthFrom').value),end=Number($('monthTo').value);
+          if(!Number.isInteger(y)||y<1900||y>9998)throw Error('Rok musí být mezi 1900 a 9998.');
+          if(start>end)throw Error('Měsíc „od“ musí být před měsícem „do“ (nebo stejný).');
+          ys=y;ms=start;ds=1; ye=end===12?y+1:y;me=end===12?1:end+1;de=1;
+          human.push(`${monthNames[start-1].toLowerCase()}${start===end?'':' – '+monthNames[end-1].toLowerCase()} ${y}`);
+        } else {
+          const d1=$('dateFrom').value,d2=$('dateTo').value;
+          if(!validISO(d1)||!validISO(d2))throw Error('Vyber obě platná data.');
+          if(d1>d2)throw Error('Datum „od“ musí být nejpozději v den „do“.');
+          [ys,ms,ds]=d1.split('-').map(Number);[ye,me,de]=addDay(d2);
+          human.push(`${d1} až ${d2}`);
+        }
+        cond.push(dateRange,`">="&${dateFormula(ys,ms,ds,sep)}`,dateRange,`"<"&${dateFormula(ye,me,de,sep)}`);
+      }
+      for(const f of filters){
+        const r=f.field==='custom'?area(letter(f.customCol)||'',first,last):rangeFor(f.field,first,last);
+        if(f.field==='custom'&&!letter(f.customCol))throw Error('V jedné podmínce chybí platné písmeno vlastního sloupce.');
+        const val=String(f.value??'').trim();
+        const val2=String(f.value2??'').trim();
+        if(!val)throw Error('Vyplň hodnotu ve všech přidaných podmínkách, nebo prázdnou podmínku smaž.');
+        if(f.field==='amount'){
+          const n=numericValue(val,language());if(n===null)throw Error(`„${val}“ není platná částka. Zadej třeba 1000 nebo 1250,50.`);
+          if(f.op==='between'){
+            const n2=numericValue(val2,language());if(n2===null)throw Error('Vyplň platnou druhou částku pro rozsah.');
+            if(Number(n.replace(',','.'))>Number(n2.replace(',','.')))throw Error('Spodní hranice částky je větší než horní.');
+            cond.push(r,excelString('>='+n),r,excelString('<='+n2));human.push(`částka mezi ${val} a ${val2}`);
+          } else {
+            const op=['=','<>','>','>=','<','<='].includes(f.op)?f.op:'=';
+            cond.push(r,excelString(op+n)); human.push(`částka ${op} ${val}`);
+          }
+        }else{
+          const textVal=literalText(val);
+          let crit=textVal;
+          if(f.op==='not')crit='<>'+textVal;
+          if(f.op==='contains')crit='*'+textVal+'*';
+          if(f.op==='starts')crit=textVal+'*';
+          if(f.op==='ends')crit='*'+textVal;
+          cond.push(r,excelString(crit));
+          human.push(`${f.field==='custom'?f.customCol:names[f.field]} ${f.op==='not'?'není':f.op==='contains'?'obsahuje':f.op==='starts'?'začíná na':f.op==='ends'?'končí na':'je'} ${val}`);
+        }
+      }
+      let formula;
+      if(state.mode==='count'){
+        const pairs=cond.length?cond:[targetRange,excelString('<>')];
+        formula=`=COUNTIFS(${pairs.join(sep)})`;
+      }else if(cond.length){
+        const fun={sum:'SUMIFS',min:'MINIFS',max:'MAXIFS',avg:'AVERAGEIFS'}[state.mode];
+        formula=`=${fun}(${[targetRange,...cond].join(sep)})`;
+      }else{
+        const fun={sum:fn('sum'),min:'MIN',max:'MAX',avg:fn('avg')}[state.mode];
+        formula=`=${fun}(${targetRange})`;
+      }
+      return {formula,human,targetRange};
+    }
+    function sync(){
+      document.querySelectorAll('.mode').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===state.mode)));
+      document.querySelectorAll('[data-period]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.period===state.period)));
+      ['none','months','dates'].forEach(p=>$('period'+p[0].toUpperCase()+p.slice(1)).style.display=p===state.period?'block':'none');
+      $('targetCustomWrap').style.display=$('targetField').value==='custom'?'block':'none';
+      $('filterEmpty').style.display=filters.length?'none':'block';
+      $('targetLabel').textContent=state.mode==='count'?'Podle kterého sloupce počítat řádky?':'Ve kterém sloupci jsou čísla k výpočtu?';
+      $('targetHint').textContent=state.mode==='count'?'Počítají se neprázdné řádky ve vybraném sloupci.':'Nejčastěji se vybírá sloupec s částkou objednávky (B).';
+      let res;
+      try {
+        res=generateFormula();$('error').classList.remove('visible');$('error').textContent='';
+        $('formula').classList.remove('formula-placeholder');$('formula').textContent=res.formula;
+        $('copyFormula').disabled=false;$('copyFormula').style.opacity='1';
+        $('formulaSummary').textContent=`${modes[state.mode]} · ${res.human.length?res.human.join(' · '):'všechny záznamy'}`;
+        $('explain').textContent=(state.mode==='count'?'Vzorec spočítá počet odpovídajících řádků.':state.mode==='sum'?'Vzorec sečte odpovídající částky.':state.mode==='min'?'Vzorec vybere nejnižší odpovídající hodnotu.':state.mode==='max'?'Vzorec vybere nejvyšší odpovídající hodnotu.':'Vzorec vypočítá průměr odpovídajících hodnot.') + (res.human.length?' Platí podmínky: '+res.human.join(', ')+'.':'');
+      }catch(e){
+        $('formula').textContent='Oprav nastavení nahoře…';$('formula').classList.add('formula-placeholder');
+        $('error').textContent=e.message;$('error').classList.add('visible');$('copyFormula').disabled=true;$('copyFormula').style.opacity='.5';
+        $('formulaSummary').textContent='Ještě něco chybí.';$('explain').textContent='Po opravě upozornění se vzorec automaticky vytvoří.';
+      }
+    }
+    function newFilter(field='seller',op='=',value='',value2=''){
+      const f={id:++counter,field,op,value,value2,customCol:'F'};filters.push(f);renderFilters();sync();return f;
+    }
+    function filterOptions(field){
+      const opts=field==='amount'?[['=','je přesně'],['<>','není'],['<','je menší než'],['<=','je nejvýše'],['>','je větší než'],['>=','je alespoň'],['between','je mezi (včetně)']]:[['=','je přesně'],['not','není'],['contains','obsahuje'],['starts','začíná na'],['ends','končí na']];
+      return opts.map(([v,t])=>`<option value="${escapeHTML(v)}">${escapeHTML(t)}</option>`).join('');
+    }
+    function renderFilters(){
+      $('filters').innerHTML=filters.map((f)=>{
+        const amt=f.field==='amount';
+        const custom=f.field==='custom';
+        const between=amt&&f.op==='between';
+        return `<div class="filter-row ${between?'numeric-range':''}" data-filter-id="${f.id}">
+          <div class="field"><label for="fld${f.id}">Co filtrovat?</label><select id="fld${f.id}" data-part="field">
+            ${[['seller','Prodejce'],['product','Produkt'],['city','Město'],['amount','Částka (Kč)'],['custom','Jiný sloupec…']].map(([v,t])=>`<option value="${v}" ${f.field===v?'selected':''}>${t}</option>`).join('')}</select></div>
+          <div class="field"><label for="op${f.id}">Jaká podmínka?</label><select id="op${f.id}" data-part="op">${filterOptions(f.field)}</select></div>
+          <div class="field"><label for="val${f.id}">${custom?'Hodnota (sloupec '+escapeHTML(f.customCol)+')':'Jaká hodnota?'}</label><input id="val${f.id}" data-part="value" value="${escapeHTML(f.value)}" placeholder="${amt?'Např. 1000':'Např. Daněk'}" autocomplete="off"></div>
+          ${between?`<div class="field"><label for="v2${f.id}">Až do</label><input id="v2${f.id}" data-part="value2" value="${escapeHTML(f.value2)}" placeholder="Např. 3000"></div>`:''}
+          <button type="button" data-remove="${f.id}" class="remove" aria-label="Smazat podmínku" title="Smazat podmínku">×</button>
+          ${custom?`<div class="field" style="grid-column:1 / -1"><label for="col${f.id}">Písmeno tohoto sloupce</label><input id="col${f.id}" data-part="customCol" value="${escapeHTML(f.customCol)}" maxlength="3" placeholder="F"></div>`:''}
+        </div>`;
+      }).join('');
+      filters.forEach(f=>{const s=$('op'+f.id);if([...s.options].some(o=>o.value===f.op))s.value=f.op;else{f.op='=';s.value='=';}});
+      $('filterEmpty').style.display=filters.length?'none':'block';
+    }
+    function reset(withSettings){
+      state={...defaultState};filters=[];$('year').value='2023';$('monthFrom').value='1';$('monthTo').value='2';$('dateFrom').value='2023-01-01';$('dateTo').value='2023-01-31';$('targetField').value='amount';$('targetCustom').value='';
+      if(withSettings){Object.entries({colSeller:'A',colAmount:'B',colDate:'C',colCity:'D',colProduct:'E',firstRow:'2',lastRow:'10000',separator:';',language:'cs'}).forEach(([id,value])=>$(id).value=value);}
+      renderFilters();sync();
+    }
+    const presets={
+      janFeb: {mode:'count',period:'months',from:1,to:2,filters:[]},
+      zlin: {mode:'count',period:'months',from:1,to:2,filters:[['city','=','Zlín'],['amount','<','1000']]},
+      danek: {mode:'sum',period:'none',filters:[['seller','=','Daněk'],['product','=','Hruška']]},
+      banana: {mode:'sum',period:'months',from:6,to:6,filters:[['product','=','Banán']]},
+      minimum: {mode:'min',period:'months',from:5,to:5,filters:[['seller','=','Daněk']]},
+      average: {mode:'avg',period:'none',filters:[['city','=','Brno']]}
+    };
+    function applyPreset(key){
+      const p=presets[key];if(!p)return;
+      reset(false);state.mode=p.mode;state.period=p.period;$('monthFrom').value=String(p.from||1);$('monthTo').value=String(p.to||2);
+      for(const [field,op,value] of p.filters)newFilter(field,op,value);
+      sync();document.getElementById('nahoru').scrollIntoView({behavior:'smooth'});
+    }
+    function init(){
+      for(const [i,name] of monthNames.entries()){
+        $('monthFrom').add(new Option(name,String(i+1)));
+        $('monthTo').add(new Option(name,String(i+1)));
+      }
+      $('monthFrom').value='1';$('monthTo').value='2';
+      document.querySelectorAll('.mode').forEach(b=>b.addEventListener('click',()=>{state.mode=b.dataset.mode;sync();}));
+      document.querySelectorAll('[data-period]').forEach(b=>b.addEventListener('click',()=>{state.period=b.dataset.period;sync();}));
+      document.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click',()=>applyPreset(b.dataset.preset)));
+      $('addFilter').addEventListener('click',()=>{newFilter();const last=filters[filters.length-1];$('fld'+last.id).focus();});
+      $('filters').addEventListener('input',e=>{
+        const el=e.target,wrap=el.closest('[data-filter-id]');if(!wrap||!el.dataset.part)return;
+        const f=filters.find(x=>x.id===Number(wrap.dataset.filterId));if(!f)return;
+        f[el.dataset.part]=el.value;
+        sync();
+      });
+      $('filters').addEventListener('change',e=>{
+        const el=e.target,wrap=el.closest('[data-filter-id]');if(!wrap||!el.dataset.part)return;
+        const f=filters.find(x=>x.id===Number(wrap.dataset.filterId));if(!f)return;
+        f[el.dataset.part]=el.value;
+        if(el.dataset.part==='field') {f.op='=';f.value='';f.value2='';renderFilters();}
+        if(el.dataset.part==='op')renderFilters();
+        sync();
+      });
+      $('filters').addEventListener('click',e=>{
+        const b=e.target.closest('[data-remove]');if(!b)return;
+        filters=filters.filter(f=>f.id!==Number(b.dataset.remove));renderFilters();sync();
+      });
+      ['targetField','targetCustom','year','monthFrom','monthTo','dateFrom','dateTo','colSeller','colAmount','colDate','colCity','colProduct','firstRow','lastRow','separator','language'].forEach(id=>{
+        $(id).addEventListener('input',sync);$(id).addEventListener('change',sync);
+      });
+      $('resetBuilder').addEventListener('click',()=>reset(false));
+      $('resetAll').addEventListener('click',()=>reset(true));
+      $('copyFormula').addEventListener('click',async()=>{
+        let v;try{v=generateFormula().formula;}catch{return;}
+        let ok=false;
+        try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(v);ok=true;}}catch{}
+        if(!ok){const t=document.createElement('textarea');t.value=v;t.style.position='fixed';t.style.left='-10000px';document.body.append(t);t.select();try{ok=document.execCommand('copy');}catch{}t.remove();}
+        const b=$('copyFormula');b.textContent=ok?'✓ Zkopírováno!':'Označ a zkopíruj vzorec';
+        if(!ok){const range=document.createRange();range.selectNodeContents($('formula'));const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);}
+        clearTimeout(b._timeout);b._timeout=setTimeout(()=>b.textContent='▣  Kopírovat vzorec',2300);
+      });
+      sync();
+    }
+    window.Excelator={generateFormula,applyPreset,reset,getState:()=>({state,filters:structuredClone(filters)})};
+    document.addEventListener('DOMContentLoaded',init);
+  </script>
+</body>
+</html>
