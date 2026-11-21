@@ -1,6 +1,6 @@
-# Excelátor – český generátor Excel vzorců
+# Excelátor – česko-anglický generátor Excel vzorců
 
-Jednoduchý, responzivní generátor Excel vzorců. Stačí otevřít `index.html` a aplikace funguje. **Bez instalace, bez registrace, bez backendu a bez externích knihoven.**
+Jednoduchý, responzivní generátor Excel vzorců s českým a anglickým rozhraním a světlým/tmavým režimem. Stačí otevřít `index.html` a aplikace funguje. **Bez instalace, bez registrace, bez backendu a bez externích knihoven.**
 
 ## Co umí
 
@@ -9,11 +9,20 @@ Jednoduchý, responzivní generátor Excel vzorců. Stačí otevřít `index.htm
 - Filtrovat **jednotlivé měsíce, rozsah měsíců nebo konkrétní data**.
 - Pracovat s číselnými podmínkami (`<`, `>`, `=`, `≤`, `≥`, „mezi“) a textovými podmínkami („obsahuje“, „začíná na“…).
 - Nastavit písmena sloupců i počáteční/koncový řádek.
-- Přepnout jazyk vzorců a oddělovač argumentů (`;` / `,`).
+- Přepnout jazyk **celého webu (Čeština / English)** přímo v horní liště.
+- Zapnout **Dark mode / Light mode** viditelným tlačítkem v horní liště, i na mobilu.
+- Zapamatovat jazyk webu a vzhled do `localStorage` v prohlížeči.
+- Nezávisle přepnout jazyk **excelových vzorců** a oddělovač argumentů (`;` / `,`).
 - Vyzkoušet hotové příklady podle školních úloh.
 - Zkopírovat vzorec jedním kliknutím, bez odesílání dat na server.
 
 **Důležité:** Aplikace vytváří **vzorec**, nikoliv finální výsledek. Ten se vypočítá až po vložení vzorce do tabulky v Excelu.
+
+## Ovládání / How to use
+
+Vpravo nahoře vyber **Čeština / English** a tlačítkem se symbolem měsíce/slunce přepni **tmavý / světlý režim**. Přepnutí jazyka webu nezmění jazyk vzorců v Excelu; ten najdeš v rozbalovacím **Nastavení sloupců a Excelu / Columns and Excel settings**.
+
+At the top right, select **Čeština / English** and use the moon/sun button to switch **dark / light mode**. The website language is independent from the Excel formula language, which you can configure under **Columns and Excel settings**.
 
 ## Jak web spustit na GitHub Pages
 
